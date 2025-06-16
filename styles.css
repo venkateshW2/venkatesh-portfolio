@@ -10,13 +10,13 @@
 :root {
     --bg-color: #fafafa;
     --text-primary: #1a1a1a;
-    --text-secondary: #666;
+    --text-secondary: #8e8e8e;
     --text-muted: #999;
     --border-color: #e1e1e1;
-    --accent-color: #0066ff;
+    --accent-color: #777777;
     --hover-bg: #f5f5f5;
-    --card-bg: #ffffff;
-    --sidebar-width: 220px;
+    --card-bg: #eeeeee;
+    --sidebar-width: 150px;
     --glitch-color: #ff0080;
 }
 
@@ -102,7 +102,7 @@ body {
 /* Sidebar Styles */
 .sidebar {
     width: var(--sidebar-width);
-    background: var(--card-bg);
+    background: none;
     border-right: 1px solid rgba(225, 225, 225, 0.15);
     position: fixed;
     top: 0;
@@ -112,8 +112,8 @@ body {
     z-index: 1000;
     transform: translateX(0);
     transition: transform 0.3s ease;
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.03);
-    backdrop-filter: blur(20px);
+   /* box-shadow: 2px 0 20px rgba(0, 0, 0, 0.03);*/
+   /* backdrop-filter: blur(20px);*/
 }
 
 .sidebar.hidden-mobile {
@@ -170,7 +170,7 @@ body {
 
 /* Enhanced Sidebar Sections */
 .sidebar-section {
-    margin-bottom: 28px;
+    margin-bottom: 18px;
 }
 
 .sidebar-section:last-child {
@@ -182,7 +182,7 @@ body {
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    margin-bottom: 12px;
+    margin-bottom: 2px;
     padding: 2px 0;
     transition: all 0.2s ease;
 }
@@ -264,17 +264,17 @@ body {
     background: none;
     border: none;
     color: var(--text-secondary);
-    padding: 10px 9px;
+    padding: 8px 5px;
     text-align: left;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    font-weight: 500;
+    font-size: 30px;
+    font-weight: 100;
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 4px;
     margin-bottom: 3px;
     position: relative;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
     text-transform: uppercase;
 }
 
@@ -338,9 +338,9 @@ body {
     background: none;
     border: none;
     color: var(--text-secondary);
-    padding: 8px 12px;
+    padding: 8px 8px;
     text-align: left;
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 400;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -462,14 +462,14 @@ body {
 
 /* Hero Section - Ikeda Style */
 .hero {
-    padding: 30px 40px 20px;
+    padding: 10px 10px 10px;
     position: relative;
     overflow: hidden;
     min-height: 140px;
 }
 
 .hero-content {
-    max-width: 400px;
+    max-width: 300px;
     position: relative;
     z-index: 10;
 }
@@ -479,7 +479,7 @@ body {
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     letter-spacing: 1px;
     text-transform: uppercase;
     position: relative;
@@ -591,7 +591,7 @@ body {
 
 /* Projects Section */
 .projects {
-    padding: 30px 40px 40px;
+    padding: 10px 10px 10px;
 }
 
 .projects-grid {
@@ -1822,5 +1822,237 @@ body {
     .project-card:hover .project-description::after,
     .project-card:hover .project-meta::before {
         display: none;
+    }
+}
+
+
+/* Category Description Animation Styles */
+.category-description {
+    width: 500%;
+    max-width: 900px;
+    margin: 0.7rem 0;
+    padding: 0rem;
+    position: relative;
+}
+
+.category-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.0rem;
+    font-weight: 200;
+       width: 100%; /* Added width */
+    color: var(--text-primary);
+    position: relative;
+    animation: glitch-1 2s infinite alternate-reverse;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+}
+
+.category-title::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+    clip: rect(0, 400px, 0, 0);
+}
+
+.category-title::before {
+    left: 2px;
+    text-shadow: 1px 0 var(--glitch-color);
+    animation: none;
+}
+
+.category-title::after {
+    left: -2px;
+    text-shadow: -1px 0 var(--accent-color);
+    animation: none;
+}
+
+@keyframes glitch-1 {
+    0% {
+        clip: rect(20px, 400px, 10px, 0);
+        transform: skew(0.5deg);
+    }
+    20% {
+        clip: rect(42px, 400px, 50px, 0);
+        transform: skew(-0.5deg);
+    }
+    40% {
+        clip: rect(54px, 400px, 2px, 0);
+        transform: skew(0.2deg);
+    }
+    60% {
+        clip: rect(65px, 400px, 12px, 0);
+        transform: skew(-0.2deg);
+    }
+    80% {
+        clip: rect(31px, 400px, 26px, 0);
+        transform: skew(0.5deg);
+    }
+    100% {
+        clip: rect(94px, 400px, 43px, 0);
+        transform: skew(-0.5deg);
+    }
+}
+
+@keyframes glitch-2 {
+    0% {
+        clip: rect(32px, 400px, 1px, 0);
+        transform: skew(0.4deg);
+    }
+    20% {
+        clip: rect(67px, 400px, 4px, 0);
+        transform: skew(-0.4deg);
+    }
+    40% {
+        clip: rect(24px, 400px, 9px, 0);
+        transform: skew(0.3deg);
+    }
+    60% {
+        clip: rect(58px, 400px, 7px, 0);
+        transform: skew(-0.3deg);
+    }
+    80% {
+        clip: rect(81px, 400px, 3px, 0);
+        transform: skew(0.4deg);
+    }
+    100% {
+        clip: rect(19px, 400px, 6px, 0);
+        transform: skew(-0.4deg);
+    }
+}
+.category-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    max-width: 100%;
+    position: relative;
+    animation: textSlide 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left;
+    padding: 1rem 0;
+    color: var(--text-secondary);
+}
+
+/* Glitch effect for title */
+.glitch-text {
+    position: relative;
+    display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+}
+
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--glitch-color);
+    clip: rect(24px, 550px, 90px, 0);
+    animation: none;
+}
+
+.glitch-text::after {
+    left: -2px;
+    text-shadow: -2px 0 var(--accent-color);
+    clip: rect(85px, 550px, 140px, 0);
+    animation: none;
+}
+@keyframes titleDistort {
+    0% {
+        letter-spacing: -0.02em;
+        transform: translateX(0) skew(0deg);
+        filter: blur(0);
+    }
+    20% {
+        letter-spacing: 0.2em;
+        transform: translateX(-10px) skew(-10deg);
+        filter: blur(2px);
+    }
+    23% {
+        letter-spacing: -0.1em;
+        transform: translateX(5px) skew(5deg);
+        filter: blur(0);
+    }
+    25% {
+        letter-spacing: -0.02em;
+        transform: translateX(0) skew(0deg);
+    }
+    60% {
+        letter-spacing: -0.02em;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+    62% {
+        letter-spacing: 0.1em;
+        transform: translateY(5px);
+        filter: blur(1px);
+    }
+    64% {
+        letter-spacing: -0.02em;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+    100% {
+        letter-spacing: -0.02em;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+}
+/* Text reveal animation */
+@keyframes textSlide {
+    0% {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Title float animation */
+@keyframes titleFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Glitch animations */
+@keyframes glitch-anim-1 {
+    0% { clip: rect(42px, 9999px, 44px, 0); }
+    20% { clip: rect(12px, 9999px, 59px, 0); }
+    40% { clip: rect(48px, 9999px, 29px, 0); }
+    60% { clip: rect(73px, 9999px, 61px, 0); }
+    80% { clip: rect(35px, 9999px, 73px, 0); }
+    100% { clip: rect(25px, 9999px, 61px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(25px, 9999px, 54px, 0); }
+    20% { clip: rect(61px, 9999px, 92px, 0); }
+    40% { clip: rect(54px, 9999px, 62px, 0); }
+    60% { clip: rect(83px, 9999px, 98px, 0); }
+    80% { clip: rect(66px, 9999px, 71px, 0); }
+    100% { clip: rect(14px, 9999px, 77px, 0); }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .category-title {
+        font-size: 2.5rem;
+    }
+    .category-text {
+        font-size: 1rem;
     }
 }

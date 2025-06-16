@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venkatesh Iyer - Sound Artist</title>
+    <title>Venkatesh Iyer - Sound Art</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -31,8 +31,8 @@
             <aside class="sidebar" id="sidebar">
                 <div class="sidebar-header">
                     <div class="logo">
-                        <h1>Venkatesh Iyer</h1>
-                        <div class="subtitle">Sound Artist</div>
+                        <h1>Venkatesh</h1>
+                        <div class="subtitle">Sound</div>
                     </div>
                 </div>
                 
@@ -40,12 +40,11 @@
                     <div class="sidebar-section">
                         <h3>Categories</h3>
                         <div class="sidebar-section-content">
-                            <button class="category-btn active" data-filter="all">All Projects</button>
-                            <button class="category-btn" data-filter="sound-designer">Sound Designer</button>
-                            <button class="category-btn" data-filter="music-producer">Music </button>
-                            <button class="category-btn" data-filter="film-mix">Film Mix</button>
-                            <button class="category-btn" data-filter="interactive-design">Interactive Design</button>
-                            <button class="category-btn" data-filter="labs">Labs</button>
+                            <button class="category-btn active" data-filter="all">Projects</button>
+                            <button class="category-btn" data-filter="sound-designer film-mix">Sound Design</button>
+                            <button class="category-btn" data-filter="music-producer film-music">Music </button>
+                            <button class="category-btn" data-filter="film-mix film-music">Films</button>
+                             <button class="category-btn" data-filter="labs">Labs</button>
                         </div>
                     </div>
 
@@ -74,7 +73,7 @@
                         <div class="sidebar-section-content">
                             <ul class="info-list">
                                 <li>Max/MSP Programming</li>
-                                <li>Pro Tools HDX Systems</li>
+                                <li>Machine Learning</li>
                                 <li>Multi-channel Installations</li>
                                 <li>EEG Audio Interfaces</li>
                                 <li>Field Recording Techniques</li>
@@ -90,10 +89,12 @@
                         </div>
                         <div class="sidebar-section-content">
                             <ul class="info-list">
+                                <li>Sneha Khanwalkar</li>
                                 <li>SOAS, University of London</li>
                                 <li>Studio Camp</li>
                                 <li>Serendipity Art Festival</li>
                                 <li>MTV India</li>
+                                <li>PowerDrift</li>
                                 <li>RedBull Media House</li>
                                 <li>Independent Productions</li>
                             </ul>
@@ -118,7 +119,11 @@
         <!-- Data stream will be populated by JS -->
     </div>
     <div class="hero-content">
-        <h1 class="hero-title" data-text="SOUND / DATA / SYSTEMS">SOUND / DATA / SYSTEMS</h1>
+        <h1 class="hero-title" data-text="SOUND / DATA / SYSTEMS">AUDIO/DATA/SYSTEMS</h1>
+          <div class="category-description" id="category-description">
+              <h2 class="category-title glitch-text" data-text=""></h2>
+            <p class="category-text fade-in"></p>
+        </div>
     </div>
 </section>
 
@@ -167,5 +172,6 @@
     <script src="canvas.js"></script>
     <script src="ui.js"></script>
     <script src="main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </body>
 </html>

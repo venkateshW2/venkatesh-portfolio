@@ -8,9 +8,34 @@ class UIManager {
         this.mobileMenuOpen = false;
         this.initialized = false;
         
-        this.initializeElements();
+       
+        this.categoryDescriptions = {
+            'all': {
+                title: 'Projects',
+                text: 'Projects spanning sound design, music production, film mixing, multichannel audio, and interactive design.'
+            },
+            
+            'sound-designer': {
+                title: 'Sound Design',
+                text: 'Projects listed under sound design are some those where I have worked for TV commercials, short films, documentaries, and digital advertisements. These projects are those were I had fun.'
+            },
+
+            'music-producer': {
+                title: 'Music',
+                text: 'Projects listed under music are those where I have had the opportunity to be music producer, mix/recording engineer, and media composer to create the required sonic experiences for film scores and music albums.'
+            },
+            'film-mix': {
+                title: 'Film Projects',
+                text: 'Projects listed under film mixing are those where I have collaborated with directors and sound designers to create immersive audio experiences for various films and documentaries.'
+            },
+            'labs': {
+                title: 'Labs',
+                text: 'Projects listed under labs are those where I have explored ideas and concepts in audio and technology.'
+            }
+        };
+         this.initializeElements();
         this.setupEventListeners();
-    }
+   }
 
     // Cache DOM elements
     initializeElements() {
@@ -91,60 +116,87 @@ class UIManager {
         this.setupSmoothScrolling();
         console.log('🎯 Event listeners set up with delegation');
     }
-
     // Handle category button clicks
-    handleCategoryClick(e) {
-        e.preventDefault();
-        console.log('\n🏷️ === CATEGORY CLICK HANDLER ===');
-        console.log('📝 Button clicked:', e.target.textContent.trim());
-        console.log('🔍 Data filter:', e.target.getAttribute('data-filter'));
+handleCategoryClick(e) {
+    e.preventDefault();
+    console.log('\n🏷️ === CATEGORY CLICK HANDLER ===');
+    
+    // Get filter type first - moved up
+    const filterType = e.target.getAttribute('data-filter');
+    console.log('📝 Button clicked:', e.target.textContent.trim());
+    console.log('🔍 Data filter:', filterType);
 
-        // Update active state for all category buttons
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        console.log('🎯 Found category buttons:', categoryButtons.length);
-        
-        categoryButtons.forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
+    // Update active state for all category buttons
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    console.log('🎯 Found category buttons:', categoryButtons.length);
+    
+    categoryButtons.forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
 
-        // Get filter type and update projects
-        const filterType = e.target.getAttribute('data-filter');
-        this.currentFilter = filterType;
-        console.log('🔍 Filtering by:', filterType);
+    // Handle filtering
+    const filterCategories = filterType === 'all' ? ['all'] : filterType.split(' ');
+    this.currentFilter = filterType;
+    console.log('🔍 Filtering by categories:', filterCategories);
+    
+    this.filterProjects(filterCategories);
+    
+    // Handle category description
+    const descriptionEl = document.getElementById('category-description');
+    if (descriptionEl) {
+        const titleEl = descriptionEl.querySelector('.category-title');
+        const textEl = descriptionEl.querySelector('.category-text');
         
-        this.filterProjects(filterType);
-        this.closeMobileMenu();
+        const category = filterType.split(' ')[0];
+        const description = this.categoryDescriptions[category] || this.categoryDescriptions['all'];
         
-        console.log('✅ Category filter completed\n');
+        // Remove active class first
+        descriptionEl.classList.remove('active');
+        
+        // Set content and data-text for glitch effect
+        titleEl.textContent = description.title;
+        titleEl.setAttribute('data-text', description.title);
+        textEl.textContent = description.text;
+        
+        // Force reflow
+        void descriptionEl.offsetWidth;
+        
+        // Add active class to trigger animations
+        setTimeout(() => {
+            descriptionEl.classList.add('active');
+        }, 50);
     }
 
+    this.closeMobileMenu();
+    console.log('✅ Category filter completed\n');
+}
+
     // Filter and display projects
-    filterProjects(filterType) {
-        console.log('\n📋 === FILTERING PROJECTS ===');
-        console.log('🔍 Filter type:', filterType);
+ filterProjects(categories) {
+    console.log('\n📋 === FILTERING PROJECTS ===');
+    console.log('🔍 Filter categories:', categories);
 
-        if (!window.dataManager) {
-            console.error('❌ DataManager not found!');
-            return;
-        }
+    if (!window.dataManager) {
+        console.error('❌ DataManager not initialized');
+        return;
+    }
 
-        let projects;
-        if (filterType === 'all') {
-            projects = window.dataManager.getAllProjects();
-        } else {
-            projects = window.dataManager.filterByCategory(filterType);
-        }
-
-        console.log('📊 Total projects found:', projects.length);
-        this.filteredProjects = projects;
-        this.renderProjects(projects);
-
-        // Update enhanced canvas with filtered projects
-        if (window.app && window.app.canvas && window.app.canvas.updateWithFilteredProjects) {
-            window.app.canvas.updateWithFilteredProjects(projects);
-            console.log('🎨 Canvas updated with filtered projects');
-        }
+    const projectElements = document.querySelectorAll('.project-card');
+    
+    projectElements.forEach(project => {
+        const projectCategory = project.dataset.category.toLowerCase();
         
-        console.log('✅ Project filtering completed\n');
+        if (categories.includes('all')) {
+            project.style.display = 'block';
+        } else {
+            // Check if any of the filter categories match the project category
+            const shouldShow = categories.some(category => 
+                projectCategory.includes(category.toLowerCase())
+            );
+            project.style.display = shouldShow ? 'block' : 'none';
+        }
+    });
+
+    console.log('📦 Filtering complete');
     }
 
     // Render projects to the DOM
