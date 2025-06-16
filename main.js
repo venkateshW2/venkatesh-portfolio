@@ -1,4 +1,4 @@
-// main.js - Main Application Controller
+// main.js - Main Application Controller with Google Sheets
 
 class App {
     constructor() {
@@ -18,9 +18,15 @@ class App {
                 });
             }
 
-            // Initialize data manager
-            console.log('Loading project data...');
-            window.dataManager.loadData();
+            // Set up Google Sheets URL
+            const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOCH8WgkFC85dwlZZw_wkAW_IRUhzIa8859fJjgJ1YJi48fAEe3WMCHvqAE2fNkG_-hITUVvpL4f7J/pub?output=csv';
+            
+            // Configure data manager with Google Sheets URL
+            window.dataManager.setGoogleSheetsUrl(GOOGLE_SHEETS_CSV_URL);
+
+            // Load data from Google Sheets
+            console.log('Loading project data from Google Sheets...');
+            await window.dataManager.loadDataFromSheets();
 
             // Initialize UI manager
             console.log('Setting up UI...');
@@ -30,13 +36,13 @@ class App {
             console.log('Hiding loading screen immediately...');
             this.hideLoadingScreen();
             
-            // Initialize canvas after a brief moment for DOM to settle
+            // Initialize canvas after a brief moment to ensure data is loaded
             setTimeout(() => {
                 this.initCanvas();
-            }, 50);
+            }, 200);
 
             this.initialized = true;
-            console.log('Application initialized successfully');
+            console.log('Application initialized successfully with Google Sheets data');
 
         } catch (error) {
             console.error('Error initializing application:', error);
@@ -48,7 +54,7 @@ class App {
     initCanvas() {
         try {
             this.canvas = new DataCanvas('data-canvas');
-            console.log('Canvas initialized');
+            console.log('Enhanced Canvas initialized with project data');
         } catch (error) {
             console.warn('Canvas initialization failed:', error);
             // Continue without canvas - not critical for functionality
@@ -110,14 +116,34 @@ class App {
             loading.innerHTML = `
                 <div style="text-align: center; color: #999;">
                     <p>Error loading portfolio</p>
-                    <p style="font-size: 10px; margin-top: 10px;">Please refresh the page</p>
+                    <p style="font-size: 10px; margin-top: 10px;">Loading offline data...</p>
                 </div>
             `;
-            // Make sure loading screen is visible for error display
-            loading.style.display = 'flex';
-            loading.style.opacity = '1';
-            loading.style.pointerEvents = 'auto';
-            loading.classList.remove('hidden');
+            
+            // Try to load fallback data
+            setTimeout(() => {
+                window.dataManager.loadFallbackData();
+                window.uiManager.initialize();
+                this.hideLoadingScreen();
+            }, 2000);
+        }
+    }
+
+    // Refresh data from Google Sheets
+    async refreshData() {
+        console.log('Refreshing data from Google Sheets...');
+        try {
+            await window.dataManager.loadDataFromSheets();
+            window.uiManager.initialize(); // Re-render with new data
+            
+            // Update canvas with new data
+            if (this.canvas && this.canvas.refreshTitles) {
+                this.canvas.refreshTitles();
+            }
+            
+            console.log('Data refreshed successfully');
+        } catch (error) {
+            console.error('Error refreshing data:', error);
         }
     }
 
@@ -174,6 +200,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         projects: () => window.dataManager?.getAllProjects(),
         filterProjects: (category) => window.uiManager?.filterProjects(category),
         stats: () => window.dataManager?.getStats(),
+        refreshData: () => window.app.refreshData(),
         testClick: (selector) => {
             const element = document.querySelector(selector);
             if (element) {
@@ -186,24 +213,13 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         forceHideLoading: () => {
             window.app.forceHideLoading();
         },
-        checkLoading: () => {
-            const allLoadingElements = document.querySelectorAll('#loading, .loading, [class*="loading"], [id*="loading"]');
-            console.log('Found loading elements:', allLoadingElements.length);
-            allLoadingElements.forEach((el, index) => {
-                console.log(`Loading element ${index}:`, {
-                    id: el.id,
-                    className: el.className,
-                    display: window.getComputedStyle(el).display,
-                    visibility: window.getComputedStyle(el).visibility,
-                    pointerEvents: window.getComputedStyle(el).pointerEvents,
-                    zIndex: window.getComputedStyle(el).zIndex,
-                    position: window.getComputedStyle(el).position
-                });
-            });
-            return allLoadingElements;
+        testSheetsUrl: () => {
+            const url = 'https://docs.google.com/spreadsheets/d/1ffJu9HeH6iMHHAnea_UkmWyuYhu_dGjOUIuSgLkFntc/export?format=csv&gid=0';
+            fetch(url).then(r => r.text()).then(data => console.log('Sheets data:', data.substring(0, 200) + '...'));
         }
     };
     
     console.log('Debug helpers available: window.debug');
-    console.log('Test clicks with: debug.testClick(".category-btn")');
+    console.log('Test Google Sheets with: debug.testSheetsUrl()');
+    console.log('Refresh data with: debug.refreshData()');
 }

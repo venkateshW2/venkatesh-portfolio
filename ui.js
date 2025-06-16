@@ -1,4 +1,4 @@
-// ui.js - UI Interactions and DOM Management
+// ui.js - UI Interactions and DOM Management (Clean Version)
 
 class UIManager {
     constructor() {
@@ -12,9 +12,8 @@ class UIManager {
         this.setupEventListeners();
     }
 
-    // Cache DOM elements - but don't rely on them for event listeners
+    // Cache DOM elements
     initializeElements() {
-        // Only cache elements we know exist
         this.elements = {
             projectsContainer: document.getElementById('projects-container'),
             dataStream: document.getElementById('data-stream'),
@@ -89,9 +88,7 @@ class UIManager {
             }
         });
 
-        // Smooth scrolling for anchor links
         this.setupSmoothScrolling();
-
         console.log('Event listeners set up with delegation');
     }
 
@@ -115,8 +112,6 @@ class UIManager {
         console.log('Filtering by:', filterType);
         
         this.filterProjects(filterType);
-
-        // Close mobile menu if open
         this.closeMobileMenu();
     }
 
@@ -136,7 +131,7 @@ class UIManager {
         this.renderProjects(projects);
 
         // Update canvas with filtered projects if canvas is available
-        if (window.app?.canvas && window.app.canvas.updateWithFilteredProjects) {
+        if (window.app && window.app.canvas && window.app.canvas.updateWithFilteredProjects) {
             window.app.canvas.updateWithFilteredProjects(projects);
         }
     }
@@ -160,80 +155,184 @@ class UIManager {
             return;
         }
 
-        // Create project cards
-        projects.forEach((project, index) => {
-            const card = this.createProjectCard(project, index);
-            this.elements.projectsContainer.appendChild(card);
+        // Create project cards and filter out broken ones
+        let cardIndex = 0;
+        projects.forEach((project) => {
+            const card = this.createProjectCard(project, cardIndex);
+            if (card) {
+                this.elements.projectsContainer.appendChild(card);
+                cardIndex++;
+            }
         });
 
-        console.log(`Rendered ${projects.length} project cards`);
+        console.log(`Rendered ${cardIndex} valid project cards out of ${projects.length} total projects`);
     }
 
     // Create individual project card
-    
-// Enhanced createProjectCard function - Replace in ui.js
+    // Updated createProjectCard function - Multiple Style Options
 
 createProjectCard(project, index) {
     const card = document.createElement('div');
-    card.className = `project-card ${project.featured ? 'featured' : ''}`;
+    
+    // Choose your card style here:
+    const CARD_STYLE = 'default'; // Options: 'default', 'text-only', 'minimal-icon', 'typography-focus'
+    
+    card.className = `project-card ${project.featured ? 'featured' : ''} ${CARD_STYLE}`;
     card.setAttribute('data-category', project.mappedCategory);
     card.style.animationDelay = `${index * 0.05}s`;
 
     // Generate category icon
     const categoryIcon = this.getCategoryIcon(project.mappedCategory);
     
-    // Generate image HTML
-    const imageHtml = project.image_url ? 
-        `<div class="project-image"><img src="${project.image_url}" alt="${project.title}" loading="lazy"></div>` :
-        `<div class="project-image-placeholder">${categoryIcon}</div>`;
+    // Clean up data
+    const cleanTitle = project.title || 'Untitled Project';
+    const cleanRole = project.role || 'Sound Artist';
+    const cleanDetails = project.details || 'Project details coming soon...';
+    const cleanYear = project.year || new Date().getFullYear();
 
-    // Handle multiple categories display
+    // Skip broken cards
+    if (cleanTitle.length > 100 || cleanTitle.includes('onload=') || cleanTitle.includes('http://')) {
+        return null;
+    }
+
+    // Handle multiple categories
     const categories = Array.isArray(project.categories) ? project.categories : [project.category];
     const categoryDisplay = categories.join(' • ');
 
-    card.innerHTML = `
-        ${project.featured ? '<div class="featured-indicator"></div>' : ''}
-        ${imageHtml}
-        <div class="project-content">
-            <div class="project-meta">
-                <span class="project-category">${categoryDisplay}</span>
-                <span class="project-year">${project.year}</span>
-            </div>
-            <h3 class="project-title">${project.title}</h3>
-            <div class="project-role">${project.role}</div>
-            <div class="project-description">${project.details}</div>
-            <div class="project-details">
-                ${project.collaboration ? `<div class="project-collaboration"><strong>Collaboration:</strong> ${project.collaboration}</div>` : ''}
-                ${project.location ? `<div class="project-collaboration"><strong>Location:</strong> ${project.location}</div>` : ''}
-                ${project.technical ? `<div class="project-collaboration"><strong>Technical:</strong> ${project.technical}</div>` : ''}
-                ${project.context ? `<div class="project-collaboration"><strong>Context:</strong> ${project.context}</div>` : ''}
-                <div class="project-links">
-                    ${project.link ? `<a href="${project.link}" target="_blank" class="project-link">View Project</a>` : ''}
-                    ${project.video ? `<a href="${project.video}" target="_blank" class="project-link">Watch Video</a>` : ''}
+    // Different layouts based on style
+    let cardHTML = '';
+
+    switch(CARD_STYLE) {
+        case 'text-only':
+            cardHTML = `
+                <div class="project-content">
+                    <div class="project-year">${cleanYear}</div>
+                    <h3 class="project-title">${cleanTitle}</h3>
+                    <div class="project-role">${cleanRole}</div>
+                    <div class="project-description">${cleanDetails}</div>
+                    <div class="project-details">
+                        ${project.collaboration ? `<div class="project-collaboration"><strong>Collaboration:</strong> ${project.collaboration}</div>` : ''}
+                        ${project.technical ? `<div class="project-collaboration"><strong>Technical:</strong> ${project.technical}</div>` : ''}
+                        <div class="project-links">
+                            ${project.link && project.link !== '' ? `<a href="${project.link}" target="_blank" class="project-link">View Project</a>` : ''}
+                            ${project.video && project.video !== '' ? `<a href="${project.video}" target="_blank" class="project-link">Watch Video</a>` : ''}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="expand-indicator">+</div>
-    `;
+                <div class="expand-indicator">+</div>
+            `;
+            break;
+
+        case 'minimal-icon':
+            cardHTML = `
+                <div class="project-image">
+                    <div class="project-image-placeholder">${categoryIcon}</div>
+                    <div class="project-category-badge">${project.mappedCategory.replace('-', ' ')}</div>
+                </div>
+                <div class="project-content">
+                    <div class="project-meta">
+                        <span class="project-category">${categoryDisplay}</span>
+                        <span class="project-year">${cleanYear}</span>
+                    </div>
+                    <h3 class="project-title">${cleanTitle}</h3>
+                    <div class="project-role">${cleanRole}</div>
+                    <div class="project-description">${cleanDetails}</div>
+                    <div class="project-details">
+                        ${project.collaboration ? `<div class="project-collaboration"><strong>Collaboration:</strong> ${project.collaboration}</div>` : ''}
+                        ${project.technical ? `<div class="project-collaboration"><strong>Technical:</strong> ${project.technical}</div>` : ''}
+                        <div class="project-links">
+                            ${project.link && project.link !== '' ? `<a href="${project.link}" target="_blank" class="project-link">View Project</a>` : ''}
+                            ${project.video && project.video !== '' ? `<a href="${project.video}" target="_blank" class="project-link">Watch Video</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="expand-indicator">+</div>
+            `;
+            break;
+
+        case 'typography-focus':
+            cardHTML = `
+                <div class="project-content">
+                    <div class="project-meta">
+                        <span class="project-category">${categoryDisplay}</span>
+                        <span class="project-year">${cleanYear}</span>
+                    </div>
+                    <h3 class="project-title">${cleanTitle}</h3>
+                    <div class="project-role">${cleanRole}</div>
+                    <div class="project-description">${cleanDetails}</div>
+                    <div class="project-details">
+                        ${project.collaboration ? `<div class="project-collaboration"><strong>Collaboration:</strong> ${project.collaboration}</div>` : ''}
+                        ${project.technical ? `<div class="project-collaboration"><strong>Technical:</strong> ${project.technical}</div>` : ''}
+                        <div class="project-links">
+                            ${project.link && project.link !== '' ? `<a href="${project.link}" target="_blank" class="project-link">View Project</a>` : ''}
+                            ${project.video && project.video !== '' ? `<a href="${project.video}" target="_blank" class="project-link">Watch Video</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="expand-indicator">+</div>
+            `;
+            break;
+
+        default: // 'default' with improved image handling
+            const hasValidImage = project.image_url && 
+                                 project.image_url !== '' && 
+                                 project.image_url !== 'undefined' &&
+                                 !project.image_url.includes('placeholder') &&
+                                 project.image_url.startsWith('http');
+
+            cardHTML = `
+                <div class="project-image">
+                    ${hasValidImage ? 
+                        `<img src="${project.image_url}" alt="${cleanTitle}" loading="lazy">` :
+                        `<div class="project-image-placeholder">${categoryIcon}</div>`
+                    }
+                    <div class="project-category-badge">${project.mappedCategory.replace('-', ' ')}</div>
+                </div>
+                <div class="project-content">
+                    <div class="project-meta">
+                        <span class="project-category">${categoryDisplay}</span>
+                        <span class="project-year">${cleanYear}</span>
+                    </div>
+                    <h3 class="project-title">${cleanTitle}</h3>
+                    <div class="project-role">${cleanRole}</div>
+                    <div class="project-description">${cleanDetails}</div>
+                    <div class="project-details">
+                        ${project.collaboration ? `<div class="project-collaboration"><strong>Collaboration:</strong> ${project.collaboration}</div>` : ''}
+                        ${project.technical ? `<div class="project-collaboration"><strong>Technical:</strong> ${project.technical}</div>` : ''}
+                        <div class="project-links">
+                            ${project.link && project.link !== '' ? `<a href="${project.link}" target="_blank" class="project-link">View Project</a>` : ''}
+                            ${project.video && project.video !== '' ? `<a href="${project.video}" target="_blank" class="project-link">Watch Video</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="expand-indicator">+</div>
+            `;
+    }
+
+    card.innerHTML = cardHTML;
+
+    // Add image loading logic for default style
+    if (CARD_STYLE === 'default') {
+        const img = card.querySelector('img');
+        if (img) {
+            img.addEventListener('load', function() {
+                this.classList.add('loaded');
+            });
+            
+            img.addEventListener('error', function() {
+                this.parentElement.innerHTML = `
+                    <div class="project-image-placeholder">${categoryIcon}</div>
+                    <div class="project-category-badge">${project.mappedCategory.replace('-', ' ')}</div>
+                `;
+            });
+        }
+    }
 
     return card;
 }
 
-// Add this new function to ui.js (after createProjectCard)
-getCategoryIcon(category) {
-    const icons = {
-        'sound-designer': '🎵',
-        'music-producer': '🎹', 
-        'film-mix': '🎬',
-        'interactive-design': '🎮',
-        'labs': '🧪'
-    };
-    return icons[category] || '🎵';
-}
-
     // Handle project card clicks
     handleProjectCardClick(e) {
-        // Don't expand if clicking on a link
         if (e.target.tagName === 'A') {
             console.log('Link clicked, not expanding card');
             return;
@@ -248,6 +347,18 @@ getCategoryIcon(category) {
         } else {
             console.log('No project card found in click target');
         }
+    }
+
+    // Get category icon
+    getCategoryIcon(category) {
+        const icons = {
+            'sound-designer': '🎵',
+            'music-producer': '🎹', 
+            'film-mix': '🎬',
+            'interactive-design': '🎮',
+            'labs': '🧪'
+        };
+        return icons[category] || '🎵';
     }
 
     // Mobile menu functions
@@ -296,7 +407,7 @@ getCategoryIcon(category) {
     // Setup smooth scrolling for anchor links
     setupSmoothScrolling() {
         document.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A' && e.target.getAttribute('href')?.startsWith('#')) {
+            if (e.target.tagName === 'A' && e.target.getAttribute('href') && e.target.getAttribute('href').startsWith('#')) {
                 e.preventDefault();
                 const target = document.querySelector(e.target.getAttribute('href'));
                 if (target) {
@@ -328,7 +439,6 @@ getCategoryIcon(category) {
             }
         };
 
-        // Update immediately and then every 3 seconds
         updateStream();
         setInterval(updateStream, 3000);
     }
@@ -349,7 +459,6 @@ getCategoryIcon(category) {
         const mainContainer = document.getElementById('main-container');
         
         if (loading) {
-            // Completely remove the loading element from DOM
             loading.remove();
             console.log('Loading element completely removed from DOM');
         }
@@ -360,7 +469,6 @@ getCategoryIcon(category) {
             console.log('Main container shown');
         }
         
-        // Also remove any residual loading elements
         const allLoadingElements = document.querySelectorAll('#loading, .loading');
         allLoadingElements.forEach(el => el.remove());
         
@@ -387,3 +495,4 @@ getCategoryIcon(category) {
 
 // Global UI manager instance
 window.uiManager = new UIManager();
+console.log('UIManager created and attached to window');
