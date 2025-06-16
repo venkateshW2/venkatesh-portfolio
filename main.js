@@ -1,4 +1,4 @@
-// main.js - Main Application Controller with Google Sheets
+// main.js - FIXED VERSION - Don't break existing functionality
 
 class App {
     constructor() {
@@ -18,7 +18,7 @@ class App {
                 });
             }
 
-            // Set up Google Sheets URL
+            // KEEP YOUR WORKING GOOGLE SHEETS URL - DON'T CHANGE IT
             const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOCH8WgkFC85dwlZZw_wkAW_IRUhzIa8859fJjgJ1YJi48fAEe3WMCHvqAE2fNkG_-hITUVvpL4f7J/pub?output=csv';
             
             // Configure data manager with Google Sheets URL
@@ -50,11 +50,12 @@ class App {
         }
     }
 
-    // Initialize the background canvas
+    // Initialize the background canvas - KEEP EXISTING CLASS NAME
     initCanvas() {
         try {
+            // Use the existing DataCanvas class name to avoid breaking
             this.canvas = new DataCanvas('data-canvas');
-            console.log('Enhanced Canvas initialized with project data');
+            console.log('Canvas initialized with project data');
         } catch (error) {
             console.warn('Canvas initialization failed:', error);
             // Continue without canvas - not critical for functionality
@@ -136,9 +137,9 @@ class App {
             await window.dataManager.loadDataFromSheets();
             window.uiManager.initialize(); // Re-render with new data
             
-            // Update canvas with new data
-            if (this.canvas && this.canvas.refreshTitles) {
-                this.canvas.refreshTitles();
+            // Update canvas with new data if available
+            if (this.canvas && this.canvas.updateWithFilteredProjects) {
+                window.uiManager.initialize();
             }
             
             console.log('Data refreshed successfully');
@@ -214,7 +215,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
             window.app.forceHideLoading();
         },
         testSheetsUrl: () => {
-            const url = 'https://docs.google.com/spreadsheets/d/1ffJu9HeH6iMHHAnea_UkmWyuYhu_dGjOUIuSgLkFntc/export?format=csv&gid=0';
+            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOCH8WgkFC85dwlZZw_wkAW_IRUhzIa8859fJjgJ1YJi48fAEe3WMCHvqAE2fNkG_-hITUVvpL4f7J/pub?output=csv';
             fetch(url).then(r => r.text()).then(data => console.log('Sheets data:', data.substring(0, 200) + '...'));
         }
     };

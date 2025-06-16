@@ -2,17 +2,17 @@
 
 // Project categories mapping (keep this as is)
 const CATEGORY_MAPPING = {
-    'GALLERY': 'Sound PostProduction',
-    'FILM': 'Film Mix',
-    'SERIES': 'Sound Dept',
-    'TVC': 'Sound Designer',
-    'SHORT FILM': 'Film Mix',
-    'DOCUMENTARY': 'Film Mix',
-    'DIGITAL ADVT': 'Sound Designer',
-    'MUSIC PRODUCER': 'Music Producer',
-    'SCORE': 'Music Producer',
-    'MUSIC': 'Music Producer',
-    'LABS': 'Labs'
+    'GALLERY': 'sound-postproduction',
+    'FILM': 'film-music',
+    'SERIES': 'sound-designer',
+    'TVC': 'sound-designer',
+    'SHORT FILM': 'film-mix',
+    'DOCUMENTARY': 'film-mix',
+    'DIGITAL ADVT': 'sound-designer',
+    'MUSIC PRODUCER': 'music-producer',
+    'SCORE': 'music-producer',
+    'MUSIC': 'music-producer',
+    'LABS': 'labs'
 };
 
 // Data management class with Google Sheets integration

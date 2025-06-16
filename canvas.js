@@ -1,4 +1,4 @@
-// canvas.js - Enhanced Background Canvas Effects
+// Dramatic High-Impact Canvas - Replace your canvas.js
 
 class DataCanvas {
     constructor(canvasId) {
@@ -11,27 +11,42 @@ class DataCanvas {
         this.ctx = this.canvas.getContext('2d');
         this.width = 0;
         this.height = 0;
-        this.particles = [];
-        this.dataStreams = [];
-        this.glitchTitles = [];
-        this.bioData = [];
         this.time = 0;
         this.animationId = null;
         
+        // Mouse tracking for magnetic effects
+        this.mouse = { x: 0, y: 0, active: false, trail: [] };
+        
+        // Card tracking system
+        this.cards = [];
+        this.cardConnections = [];
+        this.hoveredCard = null;
+        this.clickedCard = null;
+        
+        // Dramatic effect systems
+        this.electricArcs = [];
+        this.magneticFields = [];
+        this.explosionRings = [];
+        this.dataVortex = [];
+        this.lightningBolts = [];
+        this.mouseTrail = [];
+        this.pulseWaves = [];
+        this.geometricBursts = [];
+        
+        // Visual intensity settings
+        this.intensity = 0;
+        this.targetIntensity = 0;
+        
         this.init();
         this.animate();
-        console.log('Enhanced DataCanvas initialized');
+        
+        console.log('🔥 DRAMATIC CANVAS INITIALIZED - HIGH IMPACT MODE');
     }
 
     init() {
         this.resize();
-        this.createParticles();
-        this.createDataStreams();
-        this.createGlitchTitles();
-        this.createBioData();
-        
-        // Handle window resize
-        window.addEventListener('resize', () => this.resize());
+        this.setupEventListeners();
+        this.trackCards();
     }
 
     resize() {
@@ -39,359 +54,570 @@ class DataCanvas {
         this.width = rect.width;
         this.height = rect.height;
         
-        // Set canvas size accounting for device pixel ratio
         const dpr = window.devicePixelRatio || 1;
         this.canvas.width = this.width * dpr;
         this.canvas.height = this.height * dpr;
         this.ctx.scale(dpr, dpr);
+    }
+
+    setupEventListeners() {
+        window.addEventListener('resize', () => this.resize());
         
-        // Recreate elements if canvas was resized significantly
-        if (this.particles.length > 0) {
-            this.createParticles();
-            this.createDataStreams();
-            this.createGlitchTitles();
-            this.createBioData();
+        // INTENSE MOUSE TRACKING
+        document.addEventListener('mousemove', (e) => {
+            const canvasRect = this.canvas.getBoundingClientRect();
+            this.mouse.x = e.clientX - canvasRect.left;
+            this.mouse.y = e.clientY - canvasRect.top;
+            this.mouse.active = true;
+            
+            // Add to mouse trail
+            this.mouseTrail.push({
+                x: this.mouse.x,
+                y: this.mouse.y,
+                life: 0,
+                maxLife: 20,
+                size: 8
+            });
+            
+            // Limit trail length
+            if (this.mouseTrail.length > 15) {
+                this.mouseTrail.shift();
+            }
+            
+            this.checkCardHovers(e);
+            this.createMouseEffects();
+        });
+        
+        // DRAMATIC CLICK EFFECTS
+        document.addEventListener('click', (e) => {
+            this.handleCardClick(e);
+            this.createClickExplosion(this.mouse.x, this.mouse.y);
+        });
+        
+        // Filter change effects
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-btn')) {
+                setTimeout(() => this.trackCards(), 100);
+                this.createFilterChaos();
+            }
+        });
+        
+        // Mouse leave - reduce intensity
+        this.canvas.addEventListener('mouseleave', () => {
+            this.mouse.active = false;
+            this.targetIntensity = 0.2;
+        });
+        
+        this.canvas.addEventListener('mouseenter', () => {
+            this.mouse.active = true;
+            this.targetIntensity = 1.0;
+        });
+    }
+
+    // CARD TRACKING WITH MAGNETIC FIELDS
+    trackCards() {
+        this.cards = [];
+        const cardElements = document.querySelectorAll('.project-card');
+        
+        cardElements.forEach((cardEl, index) => {
+            const rect = cardEl.getBoundingClientRect();
+            const canvasRect = this.canvas.getBoundingClientRect();
+            
+            const x = rect.left + rect.width / 2 - canvasRect.left;
+            const y = rect.top + rect.height / 2 - canvasRect.top;
+            
+            if (x > -200 && x < this.width + 200 && y > -200 && y < this.height + 200) {
+                this.cards.push({
+                    id: index,
+                    x: x,
+                    y: y,
+                    width: rect.width,
+                    height: rect.height,
+                    element: cardEl,
+                    category: cardEl.getAttribute('data-category'),
+                    hovered: false,
+                    energy: 0,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    magneticField: 0,
+                    vortexAngle: 0
+                });
+            }
+        });
+        
+        this.createBoldConnections();
+        console.log(`🎯 Tracking ${this.cards.length} cards with DRAMATIC EFFECTS`);
+    }
+
+    // BOLD HIGH-CONTRAST CONNECTIONS
+    createBoldConnections() {
+        this.cardConnections = [];
+        
+        for (let i = 0; i < this.cards.length; i++) {
+            for (let j = i + 1; j < this.cards.length; j++) {
+                const cardA = this.cards[i];
+                const cardB = this.cards[j];
+                
+                const distance = Math.sqrt((cardA.x - cardB.x) ** 2 + (cardA.y - cardB.y) ** 2);
+                const sameCategory = cardA.category === cardB.category;
+                
+                if (sameCategory || distance < 400) {
+                    this.cardConnections.push({
+                        cardA: cardA,
+                        cardB: cardB,
+                        distance: distance,
+                        strength: sameCategory ? 1.0 : Math.max(0, 1 - distance / 400),
+                        thickness: sameCategory ? 6 : 3,
+                        pulsePhase: Math.random() * Math.PI * 2,
+                        active: false,
+                        electricIntensity: 0
+                    });
+                }
+            }
         }
     }
 
-    createParticles() {
-        this.particles = [];
-        const particleCount = Math.min(40, Math.floor(this.width * this.height / 12000));
+    checkCardHovers(e) {
+        const canvasRect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - canvasRect.left;
+        const mouseY = e.clientY - canvasRect.top;
         
-        for (let i = 0; i < particleCount; i++) {
-            this.particles.push({
+        this.hoveredCard = null;
+        
+        this.cards.forEach(card => {
+            const distance = Math.sqrt((mouseX - card.x) ** 2 + (mouseY - card.y) ** 2);
+            const wasHovered = card.hovered;
+            card.hovered = distance < Math.max(card.width, card.height) / 2 + 50; // Larger hover zone
+            
+            if (card.hovered) {
+                this.hoveredCard = card;
+                card.energy = Math.min(100, card.energy + 8);
+                card.magneticField = Math.min(80, card.magneticField + 6);
+                
+                if (!wasHovered) {
+                    this.createDramaticHoverEffect(card);
+                }
+            } else {
+                card.energy = Math.max(0, card.energy - 3);
+                card.magneticField = Math.max(0, card.magneticField - 2);
+            }
+        });
+        
+        // Update target intensity based on hover state
+        this.targetIntensity = this.hoveredCard ? 1.5 : (this.mouse.active ? 1.0 : 0.3);
+    }
+
+    handleCardClick(e) {
+        if (this.hoveredCard) {
+            this.clickedCard = this.hoveredCard;
+            this.createMassiveClickEffect(this.hoveredCard);
+        }
+    }
+
+    // DRAMATIC EFFECT CREATORS
+    createMouseEffects() {
+        if (!this.mouse.active) return;
+        
+        // Create lightning to nearby cards
+        this.cards.forEach(card => {
+            const distance = Math.sqrt((this.mouse.x - card.x) ** 2 + (this.mouse.y - card.y) ** 2);
+            if (distance < 200 && Math.random() < 0.03) {
+                this.createLightningBolt(this.mouse.x, this.mouse.y, card.x, card.y);
+            }
+        });
+    }
+
+    createDramaticHoverEffect(card) {
+        // Massive explosion rings
+        for (let i = 0; i < 5; i++) {
+            this.explosionRings.push({
+                x: card.x,
+                y: card.y,
+                radius: 0,
+                maxRadius: 80 + i * 30,
+                thickness: 8 - i,
+                opacity: 0.8,
+                life: 0,
+                maxLife: 40 + i * 10,
+                speed: 3 + i * 0.5
+            });
+        }
+        
+        // Data vortex around card
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2;
+            this.dataVortex.push({
+                centerX: card.x,
+                centerY: card.y,
+                angle: angle,
+                radius: 60,
+                speed: 0.1,
+                life: 0,
+                maxLife: 80,
+                size: 4,
+                data: Math.random() > 0.5 ? '1' : '0'
+            });
+        }
+        
+        // Pulse waves
+        this.pulseWaves.push({
+            x: card.x,
+            y: card.y,
+            radius: 0,
+            maxRadius: 150,
+            thickness: 12,
+            opacity: 0.6,
+            life: 0,
+            maxLife: 30
+        });
+    }
+
+    createMassiveClickEffect(card) {
+        // HUGE geometric burst
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            this.geometricBursts.push({
+                x: card.x,
+                y: card.y,
+                angle: angle,
+                length: 0,
+                maxLength: 120,
+                thickness: 8,
+                opacity: 0.9,
+                life: 0,
+                maxLife: 25,
+                speed: 6
+            });
+        }
+        
+        // Electric arcs to all connected cards
+        this.cardConnections.forEach(connection => {
+            if (connection.cardA === card || connection.cardB === card) {
+                const targetCard = connection.cardA === card ? connection.cardB : connection.cardA;
+                this.createElectricArc(card.x, card.y, targetCard.x, targetCard.y);
+            }
+        });
+        
+        // Screen shake effect (metaphorically)
+        this.intensity = 2.0;
+    }
+
+    createClickExplosion(x, y) {
+        // Massive click explosion at mouse position
+        for (let i = 0; i < 6; i++) {
+            this.explosionRings.push({
+                x: x,
+                y: y,
+                radius: 0,
+                maxRadius: 100 + i * 40,
+                thickness: 10 - i,
+                opacity: 0.7,
+                life: 0,
+                maxLife: 35 + i * 8,
+                speed: 4 + i * 0.8
+            });
+        }
+    }
+
+    createLightningBolt(x1, y1, x2, y2) {
+        this.lightningBolts.push({
+            x1: x1,
+            y1: y1,
+            x2: x2,
+            y2: y2,
+            segments: this.generateLightningPath(x1, y1, x2, y2),
+            opacity: 0.8,
+            life: 0,
+            maxLife: 8,
+            thickness: 3
+        });
+    }
+
+    generateLightningPath(x1, y1, x2, y2) {
+        const segments = [];
+        const numSegments = 8;
+        
+        for (let i = 0; i <= numSegments; i++) {
+            const t = i / numSegments;
+            const x = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 40 * (1 - Math.abs(t - 0.5) * 2);
+            const y = y1 + (y2 - y1) * t + (Math.random() - 0.5) * 40 * (1 - Math.abs(t - 0.5) * 2);
+            segments.push({ x, y });
+        }
+        
+        return segments;
+    }
+
+    createElectricArc(x1, y1, x2, y2) {
+        this.electricArcs.push({
+            x1: x1,
+            y1: y1,
+            x2: x2,
+            y2: y2,
+            controlPoints: this.generateArcPath(x1, y1, x2, y2),
+            opacity: 0.9,
+            life: 0,
+            maxLife: 15,
+            thickness: 5,
+            energy: 1.0
+        });
+    }
+
+    generateArcPath(x1, y1, x2, y2) {
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * 100;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * 100;
+        return [{ x: x1, y: y1 }, { x: midX, y: midY }, { x: x2, y: y2 }];
+    }
+
+    createFilterChaos() {
+        // Total visual chaos when filtering
+        for (let i = 0; i < 15; i++) {
+            this.explosionRings.push({
                 x: Math.random() * this.width,
                 y: Math.random() * this.height,
-                vx: (Math.random() - 0.5) * 0.2,
-                vy: (Math.random() - 0.5) * 0.2,
-                size: Math.random() * 1 + 0.5,
-                opacity: Math.random() * 0.2 + 0.05,
-                life: Math.random() * 1000
+                radius: 0,
+                maxRadius: 60 + Math.random() * 80,
+                thickness: 6,
+                opacity: 0.6,
+                life: 0,
+                maxLife: 30,
+                speed: 4
             });
         }
+        
+        this.intensity = 2.5;
     }
 
-    createDataStreams() {
-        this.dataStreams = [];
-        const streamCount = Math.min(6, Math.floor(this.width / 250));
-        
-        for (let i = 0; i < streamCount; i++) {
-            this.dataStreams.push({
-                x: Math.random() * this.width,
-                y: -50,
-                speed: Math.random() * 1 + 0.3,
-                data: this.generateTechnicalData(),
-                opacity: Math.random() * 0.2 + 0.05,
-                resetTime: Math.random() * 8000
-            });
-        }
-    }
-
-    createGlitchTitles() {
-        this.glitchTitles = [];
-        
-        // Get project titles from data manager if available
-        const projects = window.dataManager?.getAllProjects() || [];
-        const featuredProjects = projects.filter(p => p.featured).slice(0, 6);
-        
-        if (featuredProjects.length === 0) {
-            // Fallback titles if no data loaded yet
-            const fallbackTitles = [
-                'SOUND_ARTIST',
-                'INTERACTIVE_DESIGN', 
-                'SPATIAL_AUDIO',
-                'DATA_SONIFICATION',
-                'MUMBAI_INDIA'
-            ];
+    // DRAMATIC RENDERERS
+    renderBoldConnections() {
+        this.cardConnections.forEach(connection => {
+            connection.pulsePhase += 0.15;
             
-            fallbackTitles.forEach((title, index) => {
-                this.glitchTitles.push({
-                    text: title,
-                    x: Math.random() * (this.width - 300),
-                    y: 150 + (index * 60),
-                    opacity: 0,
-                    glitchIntensity: 0,
-                    life: Math.random() * 2000,
-                    fadeDirection: 1,
-                    size: 11 + Math.random() * 3
-                });
-            });
-        } else {
-            featuredProjects.forEach((project, index) => {
-                this.glitchTitles.push({
-                    text: project.title.toUpperCase().replace(/\s+/g, '_'),
-                    x: Math.random() * (this.width - 300),
-                    y: 150 + (index * 70),
-                    opacity: 0,
-                    glitchIntensity: 0,
-                    life: Math.random() * 2000,
-                    fadeDirection: 1,
-                    size: 11 + Math.random() * 3
-                });
-            });
-        }
-    }
-
-    createBioData() {
-        this.bioData = [
-            { text: 'VENKATESH_IYER', type: 'name', x: 50, y: 50 },
-            { text: 'SOUND_ARTIST', type: 'role', x: 50, y: 70 },
-            { text: 'MA_AUDIO_TECH_LONDON_2008', type: 'edu', x: 50, y: 90 },
-            { text: 'BSC_PHYSICS_MUMBAI_2004', type: 'edu', x: 50, y: 110 },
-            { text: 'MUMBAI_INDIA', type: 'location', x: 50, y: 130 },
-            { text: '20+_YEARS_EXPERIENCE', type: 'exp', x: 50, y: 150 },
-            { text: 'INTERACTIVE_AUDIO_SYSTEMS', type: 'tech', x: 50, y: 180 },
-            { text: 'SPATIAL_AUDIO_DESIGN', type: 'tech', x: 50, y: 200 },
-            { text: 'BRAINWAVE_SONIFICATION', type: 'tech', x: 50, y: 220 }
-        ];
-
-        this.bioData.forEach(item => {
-            item.opacity = Math.random() * 0.3 + 0.1;
-            item.life = Math.random() * 1000;
-            item.originalX = item.x;
-        });
-    }
-
-    generateTechnicalData() {
-        const techData = [
-            'MAX/MSP_PROCESSING',
-            'EEG_INTERFACE_ACTIVE', 
-            'SPATIAL_AUDIO_7.1',
-            'SAMPLE_RATE_48000',
-            'BUFFER_SIZE_512',
-            'LATENCY_10.7MS',
-            'CHANNELS_8_ACTIVE',
-            'FREQ_440HZ_REF',
-            'AMPLITUDE_0.75',
-            'PHASE_COHERENT'
-        ];
-        
-        return techData[Math.floor(Math.random() * techData.length)];
-    }
-
-    drawParticles() {
-        this.particles.forEach(particle => {
-            // Update position
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.life += 1;
-
-            // Bounce off edges
-            if (particle.x <= 0 || particle.x >= this.width) {
-                particle.vx *= -0.7;
-                particle.x = Math.max(0, Math.min(this.width, particle.x));
-            }
-            if (particle.y <= 0 || particle.y >= this.height) {
-                particle.vy *= -0.7;
-                particle.y = Math.max(0, Math.min(this.height, particle.y));
-            }
-
-            // Add some randomness
-            particle.vx += (Math.random() - 0.5) * 0.005;
-            particle.vy += (Math.random() - 0.5) * 0.005;
-
-            // Limit velocity
-            const maxVel = 0.5;
-            particle.vx = Math.max(-maxVel, Math.min(maxVel, particle.vx));
-            particle.vy = Math.max(-maxVel, Math.min(maxVel, particle.vy));
-
-            // Calculate opacity
-            const lifeOpacity = Math.sin(particle.life * 0.01) * 0.5 + 0.5;
-            const finalOpacity = particle.opacity * lifeOpacity * 0.3;
-
-            // Draw particle
-            this.ctx.fillStyle = `rgba(102, 102, 102, ${finalOpacity})`;
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
-    }
-
-    drawDataStreams() {
-        this.ctx.font = '9px JetBrains Mono, monospace';
-        
-        this.dataStreams.forEach(stream => {
-            stream.y += stream.speed;
-            stream.resetTime -= 16;
-
-            if (stream.y > this.height + 100 || stream.resetTime <= 0) {
-                stream.y = -50;
-                stream.x = Math.random() * this.width;
-                stream.data = this.generateTechnicalData();
-                stream.resetTime = Math.random() * 8000 + 4000;
-                stream.opacity = Math.random() * 0.2 + 0.05;
-            }
-
-            this.ctx.fillStyle = `rgba(102, 102, 102, ${stream.opacity})`;
-            this.ctx.fillText(stream.data, stream.x, stream.y);
-        });
-    }
-
-    drawGlitchTitles() {
-        this.ctx.font = 'bold 11px JetBrains Mono, monospace';
-        
-        this.glitchTitles.forEach(title => {
-            title.life += 16;
+            const cardAActive = connection.cardA.hovered || connection.cardA.energy > 30;
+            const cardBActive = connection.cardB.hovered || connection.cardB.energy > 30;
+            connection.active = cardAActive || cardBActive;
             
-            // Fade in/out cycle
-            if (title.life > 4000) {
-                title.fadeDirection = -1;
-            } else if (title.life > 8000) {
-                title.life = 0;
-                title.fadeDirection = 1;
-                title.x = Math.random() * (this.width - 200);
-            }
-
-            title.opacity += title.fadeDirection * 0.002;
-            title.opacity = Math.max(0, Math.min(0.4, title.opacity));
-
-            // Glitch effect intensity
-            title.glitchIntensity = Math.random() > 0.95 ? Math.random() * 3 : 0;
-
-            if (title.opacity > 0) {
-                // Main text
-                this.ctx.fillStyle = `rgba(102, 102, 102, ${title.opacity})`;
-                this.ctx.fillText(title.text, title.x, title.y);
-
-                // Glitch layers
-                if (title.glitchIntensity > 0) {
-                    // Red glitch
-                    this.ctx.fillStyle = `rgba(255, 0, 0, ${title.opacity * 0.6})`;
-                    this.ctx.fillText(
-                        title.text, 
-                        title.x + title.glitchIntensity, 
-                        title.y + title.glitchIntensity * 0.5
-                    );
-
-                    // Blue glitch
-                    this.ctx.fillStyle = `rgba(0, 100, 255, ${title.opacity * 0.4})`;
-                    this.ctx.fillText(
-                        title.text, 
-                        title.x - title.glitchIntensity, 
-                        title.y - title.glitchIntensity * 0.3
-                    );
+            if (connection.active || connection.strength > 0.4) {
+                // BOLD PULSING LINE
+                const pulseIntensity = Math.sin(connection.pulsePhase) * 0.5 + 0.5;
+                const lineThickness = connection.thickness + (connection.active ? pulseIntensity * 4 : 0);
+                const opacity = connection.strength * 0.6 + (connection.active ? 0.4 : 0);
+                
+                this.ctx.globalAlpha = opacity * this.intensity;
+                this.ctx.strokeStyle = '#000000'; // PURE BLACK
+                this.ctx.lineWidth = lineThickness;
+                this.ctx.lineCap = 'round';
+                
+                // Add glow effect for active connections
+                if (connection.active) {
+                    this.ctx.shadowColor = '#333333';
+                    this.ctx.shadowBlur = 8;
+                }
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(connection.cardA.x, connection.cardA.y);
+                this.ctx.lineTo(connection.cardB.x, connection.cardB.y);
+                this.ctx.stroke();
+                
+                this.ctx.shadowBlur = 0;
+                
+                // BOLD DATA FLOW INDICATORS
+                if (connection.active) {
+                    const flowPos = (Math.sin(connection.pulsePhase * 0.8) + 1) / 2;
+                    const flowX = connection.cardA.x + (connection.cardB.x - connection.cardA.x) * flowPos;
+                    const flowY = connection.cardA.y + (connection.cardB.y - connection.cardA.y) * flowPos;
+                    
+                    this.ctx.globalAlpha = 0.8 * this.intensity;
+                    this.ctx.fillStyle = '#000000';
+                    this.ctx.fillRect(flowX - 4, flowY - 4, 8, 8);
                 }
             }
         });
     }
 
-    drawBioData() {
-        this.ctx.font = '8px JetBrains Mono, monospace';
-        
-        this.bioData.forEach(item => {
-            item.life += 1;
+    renderMouseTrail() {
+        this.mouseTrail = this.mouseTrail.filter(trail => {
+            trail.life++;
+            const progress = trail.life / trail.maxLife;
+            const opacity = (1 - progress) * 0.8;
+            const size = trail.size * (1 - progress * 0.5);
             
-            // Subtle animation
-            item.x = item.originalX + Math.sin(item.life * 0.02) * 2;
-            
-            // Opacity cycling
-            const cycleOpacity = Math.sin(item.life * 0.01) * 0.1 + 0.15;
-            
-            this.ctx.fillStyle = `rgba(102, 102, 102, ${cycleOpacity})`;
-            this.ctx.fillText(item.text, item.x, item.y);
+            if (trail.life < trail.maxLife) {
+                this.ctx.globalAlpha = opacity * this.intensity;
+                this.ctx.fillStyle = '#000000';
+                this.ctx.beginPath();
+                this.ctx.arc(trail.x, trail.y, size, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                return true;
+            }
+            return false;
         });
     }
 
-    drawGrid() {
-        const gridSize = 80;
-        const opacity = 0.015;
-        
-        this.ctx.strokeStyle = `rgba(102, 102, 102, ${opacity})`;
-        this.ctx.lineWidth = 0.5;
-        
-        // Vertical lines
-        for (let x = 0; x < this.width; x += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, 0);
-            this.ctx.lineTo(x, this.height);
-            this.ctx.stroke();
-        }
-
-        // Horizontal lines  
-        for (let y = 0; y < this.height; y += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, y);
-            this.ctx.lineTo(this.width, y);
-            this.ctx.stroke();
-        }
-    }
-
-    drawDataPoints() {
-        // Occasional data visualization points
-        if (Math.random() < 0.015) {
-            const x = Math.random() * this.width;
-            const y = Math.random() * this.height;
-            const size = Math.random() * 2 + 0.5;
+    renderExplosionRings() {
+        this.explosionRings = this.explosionRings.filter(ring => {
+            ring.life++;
+            ring.radius += ring.speed;
             
-            this.ctx.fillStyle = 'rgba(0, 102, 255, 0.08)';
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, size, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
+            const progress = ring.life / ring.maxLife;
+            ring.opacity = 0.9 * (1 - progress);
+            
+            if (ring.life < ring.maxLife) {
+                this.ctx.globalAlpha = ring.opacity * this.intensity;
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = ring.thickness;
+                this.ctx.beginPath();
+                this.ctx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                return true;
+            }
+            return false;
+        });
     }
 
+    renderLightningBolts() {
+        this.lightningBolts = this.lightningBolts.filter(bolt => {
+            bolt.life++;
+            const progress = bolt.life / bolt.maxLife;
+            bolt.opacity = 0.9 * (1 - progress);
+            
+            if (bolt.life < bolt.maxLife) {
+                this.ctx.globalAlpha = bolt.opacity * this.intensity;
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = bolt.thickness;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                
+                this.ctx.beginPath();
+                bolt.segments.forEach((segment, i) => {
+                    if (i === 0) {
+                        this.ctx.moveTo(segment.x, segment.y);
+                    } else {
+                        this.ctx.lineTo(segment.x, segment.y);
+                    }
+                });
+                this.ctx.stroke();
+                
+                return true;
+            }
+            return false;
+        });
+    }
+
+    renderGeometricBursts() {
+        this.geometricBursts = this.geometricBursts.filter(burst => {
+            burst.life++;
+            burst.length += burst.speed;
+            
+            const progress = burst.life / burst.maxLife;
+            burst.opacity = 0.9 * (1 - progress);
+            
+            if (burst.life < burst.maxLife) {
+                const endX = burst.x + Math.cos(burst.angle) * burst.length;
+                const endY = burst.y + Math.sin(burst.angle) * burst.length;
+                
+                this.ctx.globalAlpha = burst.opacity * this.intensity;
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = burst.thickness;
+                this.ctx.lineCap = 'round';
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(burst.x, burst.y);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+                
+                return true;
+            }
+            return false;
+        });
+    }
+
+    renderCards() {
+        this.cards.forEach(card => {
+            card.pulsePhase += 0.1;
+            card.vortexAngle += 0.05;
+            
+            // BOLD ENERGY HALOS
+            if (card.energy > 20) {
+                const pulseSize = Math.sin(card.pulsePhase) * 10 + 30;
+                const radius = (card.energy / 100) * 60 + pulseSize;
+                
+                this.ctx.globalAlpha = (card.energy / 100) * 0.6 * this.intensity;
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = 6;
+                this.ctx.beginPath();
+                this.ctx.arc(card.x, card.y, radius, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                // Inner pulse
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.arc(card.x, card.y, radius * 0.6, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+            
+            // MAGNETIC FIELD VISUALIZATION
+            if (card.magneticField > 10) {
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2 + card.vortexAngle;
+                    const distance = 40 + (card.magneticField / 80) * 30;
+                    const x = card.x + Math.cos(angle) * distance;
+                    const y = card.y + Math.sin(angle) * distance;
+                    
+                    this.ctx.globalAlpha = (card.magneticField / 80) * 0.7 * this.intensity;
+                    this.ctx.fillStyle = '#000000';
+                    this.ctx.fillRect(x - 3, y - 3, 6, 6);
+                }
+            }
+        });
+    }
+
+    // MAIN ANIMATION LOOP
     animate() {
+        this.time++;
+        
+        // Smooth intensity transitions
+        this.intensity += (this.targetIntensity - this.intensity) * 0.1;
+        
+        // Re-track cards every 20 frames for performance
+        if (this.time % 20 === 0) {
+            this.trackCards();
+        }
+        
         // Clear canvas
         this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.globalAlpha = 1;
         
-        // Update time
-        this.time += 0.01;
-
-        // Draw all elements
-        this.drawGrid();
-        this.drawParticles();
-        this.drawDataStreams();
-        this.drawGlitchTitles();
-        this.drawBioData();
-        this.drawDataPoints();
-
-        // Continue animation
+        // Render all dramatic systems
+        this.renderBoldConnections();
+        this.renderCards();
+        this.renderMouseTrail();
+        this.renderExplosionRings();
+        this.renderLightningBolts();
+        this.renderGeometricBursts();
+        
+        // STATUS DISPLAY
+        this.ctx.globalAlpha = 0.4;
+        this.ctx.font = '10px "JetBrains Mono", monospace';
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillText(`[DRAMATIC_MODE] INTENSITY: ${(this.intensity * 100).toFixed(0)}%`, 20, this.height - 15);
+        
         this.animationId = requestAnimationFrame(() => this.animate());
     }
 
-    // Public methods
-    start() {
-        if (!this.animationId) {
-            this.animate();
-        }
-    }
-
-    stop() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-    }
-
-    // Refresh glitch titles with new project data
-    refreshTitles() {
-        this.createGlitchTitles();
-    }
-
-    // Update canvas when projects are filtered
     updateWithFilteredProjects(projects) {
-        // Update glitch titles with filtered projects
-        this.glitchTitles = [];
-        const displayProjects = projects.slice(0, 6);
-        
-        displayProjects.forEach((project, index) => {
-            this.glitchTitles.push({
-                text: project.title.toUpperCase().replace(/\s+/g, '_'),
-                x: Math.random() * (this.width - 300),
-                y: 150 + (index * 70),
-                opacity: 0,
-                glitchIntensity: Math.random() * 2, // Start with some glitch
-                life: Math.random() * 1000,
-                fadeDirection: 1,
-                size: 11 + Math.random() * 3
-            });
-        });
+        setTimeout(() => {
+            this.trackCards();
+            this.createFilterChaos();
+        }, 100);
     }
 
     destroy() {
-        this.stop();
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
         window.removeEventListener('resize', this.resize);
-        console.log('Enhanced DataCanvas destroyed');
+        console.log('🔥 DRAMATIC CANVAS DESTROYED');
     }
 }
 
